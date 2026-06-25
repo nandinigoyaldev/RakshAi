@@ -248,4 +248,29 @@ See `CONTRIBUTING.md`.
 
 ## Activate the env
 
+```bash
 source myenv/bin/activate
+```
+
+## Web Application & Sign Language (Vercel Ready)
+
+The Autobot project now includes a futuristic, JARVIS-styled web interface with built-in Sign Language Recognition!
+
+### Features
+- **Sign Language Recognition**: Detects basic signs (A/Fist, V/2, 5/Open, 1/Point) directly in your browser.
+- **JARVIS Aesthetics**: Monospaced terminal fonts, cyan wireframes, and holographic scanlines.
+- **Vercel Deployable**: The `web_app/` folder is pre-configured to be deployed instantly on Vercel as a Serverless API + Static Frontend.
+
+### Running Locally
+To test the web app on your local machine:
+1. Navigate to the web directory: `cd web_app`
+2. Install the web dependencies: `pip install -r requirements.txt`
+3. Run the backend server: `uvicorn api.index:app --reload`
+4. Open your browser and go to `http://localhost:8000`
+
+### Deploying to Vercel
+1. Push this repository to GitHub.
+2. Log into Vercel and click **Add New Project**.
+3. Import your GitHub repository.
+4. Set the **Root Directory** to `web_app`.
+5. Vercel will automatically detect `vercel.json` and deploy both the Python Serverless function and the static frontend!
