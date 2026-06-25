@@ -1096,11 +1096,11 @@ def main():
 
     def launch_spotify_app():
         candidates = [
-            ["xdg-open", "https://open.spotify.com/"],
+            ["open", "https://open.spotify.com/"],
             ["spotify"],
             ["flatpak", "run", "com.spotify.Client"],
             ["snap", "run", "spotify"],
-            ["xdg-open", "spotify:"],
+            ["open", "spotify:"],
         ]
 
         for command in candidates:
@@ -1990,7 +1990,7 @@ def main():
                                     gesture_name = "SCREENSHOT SAVED"
                             if gesture_action.get("browser"):
                                 if not browser_wait_release:
-                                    subprocess.Popen(["xdg-open", "https://www.google.com"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                                    subprocess.Popen(["open", "https://www.google.com"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                                     gesture_name = "BROWSER OPENED"
                                     browser_wait_release = True
                                 else:

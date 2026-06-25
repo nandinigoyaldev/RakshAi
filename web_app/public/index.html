@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS TERMINAL</title>
+    <!-- Jarvis-like fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    
+    <!-- MediaPipe dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="hud-panel">
+            <div class="logo">
+                <div class="pulse-dot"></div>
+                <h1>J.A.R.V.I.S. <span class="highlight">SYSTEMS</span></h1>
+            </div>
+            <div class="status-bar">
+                <span class="hud-bracket">[</span>
+                <span id="api-status" class="badge">SYS: OFFLINE</span>
+                <span id="camera-status" class="badge">CAM: OFFLINE</span>
+                <span class="hud-bracket">]</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard">
+            <!-- Camera Feed -->
+            <section class="video-section hud-panel crosshair-bg">
+                <div class="hud-corner top-left"></div>
+                <div class="hud-corner top-right"></div>
+                <div class="hud-corner bottom-left"></div>
+                <div class="hud-corner bottom-right"></div>
+                
+                <div class="video-wrapper">
+                    <video id="webcam" autoplay playsinline></video>
+                    <canvas id="output_canvas"></canvas>
+                    <div class="scanline"></div>
+                </div>
+                <div class="controls">
+                    <button id="enableWebcamButton" class="btn outline">
+                        [ INITIATE OPTICAL SENSOR ]
+                    </button>
+                </div>
+            </section>
+
+            <!-- Features & Sign Language Output -->
+            <section class="sidebar">
+                <div class="output-panel hud-panel">
+                    <h2>// GESTURE_CLASSIFIER</h2>
+                    <div id="gesture-output" class="sign-result">
+                        <span class="placeholder">AWAITING INPUT...</span>
+                    </div>
+                </div>
+
+                <div class="features-panel hud-panel">
+                    <h2>// SYSTEM_TELEMETRY</h2>
+                    <ul id="features-list" class="feature-list">
+                        <li>> TRACKING: <span id="tracking-status">INACTIVE</span></li>
+                        <li>> HANDEDNESS: <span id="handedness-out">-</span></li>
+                        <li>> TARGET: <span class="highlight">H.A.N.D.</span></li>
+                    </ul>
+                </div>
+
+                <div class="notifications-panel hud-panel">
+                    <h2>// DATA_STREAM</h2>
+                    <div id="notifications-box" class="notes-box">
+                        <p class="sys-msg">> SYS_INIT: PROTOCOL_ALPHA LOADED</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script type="module" src="/app.js"></script>
+</body>
+</html>
