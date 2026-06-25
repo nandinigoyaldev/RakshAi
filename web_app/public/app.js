@@ -346,44 +346,82 @@ function drawJarvisCircle(ctx, landmarks) {
     const x = center.x * canvasElement.width;
     const y = center.y * canvasElement.height;
     
-    // Calculate a dynamic radius based on hand size
     const wrist = landmarks[0];
     const middleTip = landmarks[12];
     const dx = (wrist.x - middleTip.x) * canvasElement.width;
     const dy = (wrist.y - middleTip.y) * canvasElement.height;
     const handSize = Math.sqrt(dx*dx + dy*dy);
-    const baseRadius = handSize * 0.4;
+    const baseRadius = handSize * 0.45;
 
-    jarvisRotation += 0.05;
+    jarvisRotation += 0.08;
 
     ctx.save();
     ctx.translate(x, y);
     
-    // Outer dashed ring
-    ctx.rotate(jarvisRotation);
-    ctx.beginPath();
-    ctx.arc(0, 0, baseRadius * 1.2, 0, 2 * Math.PI);
-    ctx.strokeStyle = "rgba(0, 255, 255, 0.8)";
-    ctx.lineWidth = 3;
-    ctx.setLineDash([15, 10]);
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = "cyan";
-    ctx.stroke();
-    
-    // Inner solid ring
-    ctx.rotate(-jarvisRotation * 1.5);
-    ctx.beginPath();
-    ctx.arc(0, 0, baseRadius, 0, 2 * Math.PI);
-    ctx.strokeStyle = "rgba(0, 200, 255, 0.6)";
-    ctx.lineWidth = 2;
-    ctx.setLineDash([50, 15, 10, 15]);
-    ctx.stroke();
-
     // Core glow
     ctx.beginPath();
-    ctx.arc(0, 0, baseRadius * 0.8, 0, 2 * Math.PI);
-    ctx.fillStyle = "rgba(0, 255, 255, 0.1)";
+    ctx.arc(0, 0, baseRadius * 0.4, 0, 2 * Math.PI);
+    ctx.fillStyle = "rgba(0, 255, 255, 0.15)";
+    ctx.shadowBlur = 30;
+    ctx.shadowColor = "cyan";
     ctx.fill();
+
+    // Inner rotating dashed ring
+    ctx.save();
+    ctx.rotate(jarvisRotation * 1.2);
+    ctx.beginPath();
+    ctx.arc(0, 0, baseRadius * 0.8, 0, 2 * Math.PI);
+    ctx.strokeStyle = "rgba(0, 200, 255, 0.9)";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([20, 10, 5, 10]);
+    ctx.stroke();
+    ctx.restore();
+    
+    // Middle solid ring with gaps
+    ctx.save();
+    ctx.rotate(-jarvisRotation * 0.8);
+    ctx.beginPath();
+    ctx.arc(0, 0, baseRadius * 1.1, 0.2, 2 * Math.PI - 0.2);
+    ctx.strokeStyle = "rgba(0, 255, 255, 0.7)";
+    ctx.lineWidth = 4;
+    ctx.setLineDash([60, 20]);
+    ctx.stroke();
+    ctx.restore();
+
+    // Outer thick radar band
+    ctx.save();
+    ctx.rotate(jarvisRotation * 0.5);
+    ctx.beginPath();
+    ctx.arc(0, 0, baseRadius * 1.4, 0, Math.PI * 0.8);
+    ctx.strokeStyle = "rgba(0, 150, 255, 0.5)";
+    ctx.lineWidth = 8;
+    ctx.setLineDash([]);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, 0, baseRadius * 1.4, Math.PI, Math.PI * 1.8);
+    ctx.stroke();
+    ctx.restore();
+
+    // Draw connection lines to fingertips for the "cybernetic" feel
+    ctx.setLineDash([5, 5]);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(0, 255, 255, 0.6)";
+    const tips = [4, 8, 12, 16, 20];
+    tips.forEach(tipIdx => {
+        const tip = landmarks[tipIdx];
+        const tx = tip.x * canvasElement.width - x;
+        const ty = tip.y * canvasElement.height - y;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(tx, ty);
+        ctx.stroke();
+        
+        // Draw small circle at tip
+        ctx.beginPath();
+        ctx.arc(tx, ty, 6, 0, 2 * Math.PI);
+        ctx.fillStyle = "rgba(0, 255, 255, 0.8)";
+        ctx.fill();
+    });
 
     ctx.restore();
 }
