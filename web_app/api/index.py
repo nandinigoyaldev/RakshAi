@@ -41,20 +41,6 @@ async def serve_static(filename: str):
 async def handle_sign(payload: SignPayload):
     sign = payload.sign
     print(f"Received sign from client: {sign}")
-    
-    import subprocess
-    
-    if "1 Finger" in sign:
-        subprocess.Popen(["say", "Next"])
-    elif "2 Fingers" in sign:
-        subprocess.Popen(["say", "Going back"])
-    elif "3 Fingers" in sign:
-        subprocess.Popen(["say", "Scrolling"])
-    elif "4 Fingers" in sign:
-        subprocess.Popen(["say", "System standing by"])
-    elif "5 Fingers" in sign:
-        subprocess.Popen(["say", "Hello sir, I am Jarvis. Capturing profile."])
-        
     return {"status": "success", "message": f"Processed sign: {sign}"}
 
 @app.post("/api/register")

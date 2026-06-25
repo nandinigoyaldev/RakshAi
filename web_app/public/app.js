@@ -24,6 +24,26 @@ let lastCaptureTime = 0;
 let jarvisRotation = 0;
 let spotifyAccessToken = null;
 let isAsciiMode = false;
+let isJarvisActive = false;
+
+// Audio setup
+const jarvisAudio = new Audio("/audios/jarvis.wav");
+jarvisAudio.loop = true;
+jarvisAudio.volume = 0.5;
+
+function speak(text) {
+    // Check if browser supports speech synthesis
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); // Stop any currently speaking voice
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.pitch = 0.8; // Deeper voice
+        utterance.rate = 1.0;
+        window.speechSynthesis.speak(utterance);
+    }
+}
+let jarvisRotation = 0;
+let spotifyAccessToken = null;
+let isAsciiMode = false;
 
 // ASCII setup
 const asciiCanvas = document.createElement('canvas');
@@ -222,12 +242,24 @@ async function predictWebcam() {
             }
 
             // Draw Jarvis circle for ANY hand showing 5 fingers
+            let anyHandJarvis = false;
             results.landmarks.forEach((landmarks, index) => {
                 if (detectFingerCount(landmarks) === 5) {
+                    anyHandJarvis = true;
                     const handName = results.handednesses[index][0].displayName;
                     drawJarvisCircle(canvasCtx, landmarks, handName);
                 }
             });
+
+            if (anyHandJarvis && !isJarvisActive) {
+                isJarvisActive = true;
+                speak("Hello sir, I am Jarvis.");
+                jarvisAudio.play().catch(e => console.log("Audio play prevented by browser policy", e));
+            } else if (!anyHandJarvis && isJarvisActive) {
+                isJarvisActive = false;
+                jarvisAudio.pause();
+                jarvisAudio.currentTime = 0;
+            }
 
             if (gestureOutput.innerHTML !== gestureLabel) {
                 gestureOutput.innerHTML = gestureLabel;
@@ -238,12 +270,16 @@ async function predictWebcam() {
                     sendSignToAPI(gestureLabel);
                     
                     if (primaryFingerCount === 1) {
+                        speak("Next track");
                         handleSpotifyCommand("next");
                     } else if (primaryFingerCount === 2) {
+                        speak("Previous track");
                         handleSpotifyCommand("previous");
                     } else if (primaryFingerCount === 3) {
+                        speak("Playing");
                         handleSpotifyCommand("play");
                     } else if (primaryFingerCount === 4) {
+                        speak("Paused");
                         handleSpotifyCommand("pause");
                     }
                 }
