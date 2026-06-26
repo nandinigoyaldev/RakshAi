@@ -87,10 +87,10 @@ Create the Spotify app and add the redirect URI in the Spotify Developer Dashboa
 
 ### 6) What each file/folder is for
 
-- `gesture.py` — Main launcher that runs the full autobotx app.
-- `src/` — Small, focused lesson scripts for teaching step-by-step.
-- `src/main.py` — Full app implementation (same as `gesture.py` behavior).
-- `spotify.py`, `voice.py` — Helpers for Spotify and voice recognition.
+
+- `autobotx/` — Small, focused lesson scripts for teaching step-by-step.
+- `autobotx/main.py` — Full app implementation (same as `gesture.py` behavior).
+
 - `audios/` — Sound effects used by the app.
 - `requirements.txt` — Python dependencies to install.
 
@@ -98,7 +98,7 @@ Create the Spotify app and add the redirect URI in the Spotify Developer Dashboa
 
 ```bash
 # Use CAMERA_INDEX to select the webcam if you have multiple
-CAMERA_INDEX=0 python gesture.py
+CAMERA_INDEX=0 python -m autobotx.main
 ```
 
 Controls inside the app:
@@ -111,7 +111,7 @@ Controls inside the app:
 Start with the camera module:
 
 ```bash
-python src/camera_feed.py
+python autobotx/camera_feed.py
 ```
 
 The modules available are:
@@ -148,7 +148,7 @@ This project keeps automatic screenshots locally. The repository is configured t
 
 ```bash
 export QT_QPA_PLATFORM=xcb
-python gesture.py
+python -m autobotx.main
 ```
 
 - If microphone input is not detected, run:

@@ -33,15 +33,15 @@ except Exception:
     sd = None
 
 # Add root directory to path for imports
-_ROOT = Path(__file__).resolve().parents[1]
+_ROOT = Path(__file__).resolve().parents[0]
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from spotify import create_spotify_client
-from voice import VoiceCommandListener
+from .spotify import create_spotify_client
+from .voice import VoiceCommandListener
 
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
+ROOT_DIR = Path(__file__).resolve().parents[0]
 AUDIO_DIR = ROOT_DIR / "audios"
 PROFILE_CONFIG_PATH = ROOT_DIR / "profiles.json"
 

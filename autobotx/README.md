@@ -8,7 +8,7 @@ Run each module with the virtualenv activated:
 
 ```bash
 . .venv/bin/activate
-python src/module_name.py
+python autobotx/module_name.py
 ```
 
 ### Level 1: Camera Fundamentals
@@ -18,7 +18,7 @@ python src/module_name.py
 - **Topics**: Video capture, frame reading, real-time display
 - **Skills**: Setting up camera input for vision tasks
 ```bash
-CAMERA_INDEX=0 python src/camera_feed.py
+CAMERA_INDEX=0 python autobotx/camera_feed.py
 ```
 
 ### Level 2: Hand Detection & Gesture Recognition
@@ -28,7 +28,7 @@ CAMERA_INDEX=0 python src/camera_feed.py
 - **Topics**: MediaPipe hand detection, landmark analysis, gesture detection
 - **Skills**: ML-based hand tracking, geometric calculations
 ```bash
-python src/gesture_tracker.py
+python autobotx/gesture_tracker.py
 ```
 
 #### **Screenshot Engine: Two Finger Screenshot**
@@ -36,7 +36,7 @@ python src/gesture_tracker.py
 - **Topics**: Gesture triggering, screen capture, state management
 - **Skills**: Combining gesture detection with system commands
 ```bash
-python src/screenshot_engine.py
+python autobotx/screenshot_engine.py
 ```
 
 ### Level 3: Voice & Audio Integration
@@ -46,7 +46,7 @@ python src/screenshot_engine.py
 - **Topics**: Real-time audio capture, speech-to-text, wake word detection
 - **Skills**: Voice processing, threading, callbacks
 ```bash
-python src/voice_assistant.py
+python autobotx/voice_assistant.py
 ```
 
 ### Level 4: External Service Integration
@@ -56,7 +56,7 @@ python src/voice_assistant.py
 - **Topics**: OAuth authentication, API integration, error handling
 - **Skills**: Working with APIs, credential management, graceful degradation
 ```bash
-python src/spotify_controller.py
+python autobotx/spotify_controller.py
 ```
 
 ### Level 5: Complete System
@@ -66,12 +66,12 @@ python src/spotify_controller.py
 - **Topics**: Multi-modal input, event architecture, real-time processing
 - **Skills**: System integration, performance optimization, user experience
 ```bash
-CAMERA_INDEX=0 python src/main.py
+CAMERA_INDEX=0 python autobotx/main.py
 ```
 
 Or use the main entry point:
 ```bash
-CAMERA_INDEX=0 python gesture.py
+CAMERA_INDEX=0 python -m autobotx.main
 ```
 
 **Controls:**

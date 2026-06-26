@@ -33,11 +33,11 @@ dependencies = [
 ]
 
 [project.scripts]
-jarvis-gesture = "jarvis_control.gesture:main"
+autobotx = "autobotx.main:main"
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["jarvis_control*"]
+
+include = ["autobotx*"]
 
 [tool.vercel]
 entrypoint = "web_app.api.index:app"
