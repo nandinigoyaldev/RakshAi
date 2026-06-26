@@ -1,4 +1,4 @@
-import { HandLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3";
+import { HandLandmarker, ObjectDetector, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3";
 
 const video = document.getElementById("webcam");
 const canvasElement = document.getElementById("output_canvas");
@@ -14,6 +14,7 @@ const handednessOut = document.getElementById("handedness-out");
 const notificationsBox = document.getElementById("notifications-box");
 
 let handLandmarker = undefined;
+let objectDetector = undefined;
 let runningMode = "VIDEO";
 let webcamRunning = false;
 let lastVideoTime = -1;
@@ -45,8 +46,8 @@ function addNotification(text) {
     notificationsBox.prepend(p);
 }
 
-// Initialize MediaPipe
-async function createHandLandmarker() {
+// Initialize MediaPipe Models
+async function createMediaPipeModels() {
     const vision = await FilesetResolver.forVisionTasks(
         "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
     );
@@ -61,13 +62,26 @@ async function createHandLandmarker() {
         minHandPresenceConfidence: 0.7,
         minTrackingConfidence: 0.7
     });
+    
+    objectDetector = await ObjectDetector.createFromOptions(vision, {
+        baseOptions: {
+            modelAssetPath: `https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/1/efficientdet_lite0.tflite`,
+            delegate: "GPU"
+        },
+        scoreThreshold: 0.25,
+        maxResults: 15,
+        runningMode: runningMode
+    });
+    
     if (initializeSystemButton) {
         initializeSystemButton.classList.remove("disabled");
     }
-    addNotification("Vision System Initialized.");
+    addNotification("AI Models Loaded: Hands & Objects ready.");
+    const objOut = document.getElementById("object-output");
+    if(objOut) objOut.innerHTML = `<p class="sys-msg">Scanner ready.</p>`;
 }
 
-createHandLandmarker();
+createMediaPipeModels();
 
 if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     if (initializeSystemButton) {
@@ -144,15 +158,80 @@ async function predictWebcam() {
     if (runningMode === "IMAGE") {
         runningMode = "VIDEO";
         await handLandmarker.setOptions({ runningMode: "VIDEO" });
+        await objectDetector.setOptions({ runningMode: "VIDEO" });
     }
 
     let startTimeMs = performance.now();
     if (lastVideoTime !== video.currentTime) {
         lastVideoTime = video.currentTime;
         const results = handLandmarker.detectForVideo(video, startTimeMs);
+        const objResults = objectDetector.detectForVideo(video, startTimeMs);
         
         canvasCtx.save();
         canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+        
+        // Draw Futuristic Object Bounding Boxes
+        const objOut = document.getElementById("object-output");
+        let detectedClasses = [];
+        if (objResults.detections.length > 0) {
+            for (const detection of objResults.detections) {
+                const category = detection.categories[0];
+                const box = detection.boundingBox;
+                const score = Math.round(category.score * 100);
+                
+                if (!detectedClasses.includes(category.categoryName)) {
+                    detectedClasses.push(category.categoryName);
+                }
+
+                // Futuristic Targeting Box (Corners only)
+                const x = box.originX * (canvasElement.width / video.videoWidth);
+                const y = box.originY * (canvasElement.height / video.videoHeight);
+                const w = box.width * (canvasElement.width / video.videoWidth);
+                const h = box.height * (canvasElement.height / video.videoHeight);
+                const color = category.categoryName === "person" ? "#ef4444" : "#10b981"; // Red for person, green for objects
+                
+                canvasCtx.strokeStyle = color;
+                canvasCtx.lineWidth = 2;
+                canvasCtx.beginPath();
+                const cornerLen = 20;
+                // Top Left
+                canvasCtx.moveTo(x, y + cornerLen); canvasCtx.lineTo(x, y); canvasCtx.lineTo(x + cornerLen, y);
+                // Top Right
+                canvasCtx.moveTo(x + w - cornerLen, y); canvasCtx.lineTo(x + w, y); canvasCtx.lineTo(x + w, y + cornerLen);
+                // Bottom Left
+                canvasCtx.moveTo(x, y + h - cornerLen); canvasCtx.lineTo(x, y + h); canvasCtx.lineTo(x + cornerLen, y + h);
+                // Bottom Right
+                canvasCtx.moveTo(x + w - cornerLen, y + h); canvasCtx.lineTo(x + w, y + h); canvasCtx.lineTo(x + w, y + h - cornerLen);
+                canvasCtx.stroke();
+                
+                // Crosshair
+                canvasCtx.beginPath();
+                canvasCtx.moveTo(x + w/2 - 10, y + h/2);
+                canvasCtx.lineTo(x + w/2 + 10, y + h/2);
+                canvasCtx.moveTo(x + w/2, y + h/2 - 10);
+                canvasCtx.lineTo(x + w/2, y + h/2 + 10);
+                canvasCtx.strokeStyle = "rgba(255,255,255,0.5)";
+                canvasCtx.stroke();
+
+                // High-tech Label (Flipped to read normally on mirrored canvas)
+                canvasCtx.save();
+                canvasCtx.translate(x + w/2, y - 10);
+                canvasCtx.scale(-1, 1); // Flip horizontally to counteract CSS mirror
+                canvasCtx.fillStyle = color;
+                canvasCtx.font = "bold 14px monospace";
+                canvasCtx.textAlign = "center";
+                canvasCtx.fillText(`TARGET: ${category.categoryName.toUpperCase()} [${score}%]`, 0, 0);
+                canvasCtx.restore();
+            }
+        }
+        
+        if (objOut) {
+            if (detectedClasses.length > 0) {
+                objOut.innerHTML = detectedClasses.map(c => `<p class="sys-msg">Tracking: <strong>${c.toUpperCase()}</strong></p>`).join("");
+            } else {
+                objOut.innerHTML = `<p class="sys-msg">No targets detected.</p>`;
+            }
+        }
         
         if (results.landmarks && results.landmarks.length > 0) {
             trackingStatus.textContent = "ACTIVE";
