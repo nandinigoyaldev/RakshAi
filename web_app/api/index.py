@@ -24,13 +24,20 @@ app = FastAPI(title="Autobot API")
 
 class VoicePrompt(BaseModel):
     prompt: str
+    context: list[str] = []
 
 @app.post("/api/voice")
 async def process_voice(data: VoicePrompt):
     prompt = data.prompt
+    context = data.context
     
     if not os.environ.get("GEMINI_API_KEY"):
         return {"response": "Gemini API Key is missing."}
+    
+    # Inject visual context if available
+    if context and len(context) > 0:
+        objects = ", ".join(context)
+        prompt = f"[SYSTEM: The user's camera currently sees these objects in the room: {objects}]\nUser says: {prompt}"
     
     try:
         llm_response = chat_session.send_message(prompt)

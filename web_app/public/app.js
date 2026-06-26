@@ -19,6 +19,7 @@ let runningMode = "VIDEO";
 let webcamRunning = false;
 let lastVideoTime = -1;
 let jarvisRotation = 0;
+let currentVisualContext = [];
 
 // API connection check
 async function checkBackendAPI() {
@@ -172,15 +173,15 @@ async function predictWebcam() {
         
         // Draw Futuristic Object Bounding Boxes
         const objOut = document.getElementById("object-output");
-        let detectedClasses = [];
+        currentVisualContext = [];
         if (objResults.detections.length > 0) {
             for (const detection of objResults.detections) {
                 const category = detection.categories[0];
                 const box = detection.boundingBox;
                 const score = Math.round(category.score * 100);
                 
-                if (!detectedClasses.includes(category.categoryName)) {
-                    detectedClasses.push(category.categoryName);
+                if (!currentVisualContext.includes(category.categoryName)) {
+                    currentVisualContext.push(category.categoryName);
                 }
 
                 // Futuristic Targeting Box (Corners only)
@@ -226,8 +227,8 @@ async function predictWebcam() {
         }
         
         if (objOut) {
-            if (detectedClasses.length > 0) {
-                objOut.innerHTML = detectedClasses.map(c => `<p class="sys-msg">Tracking: <strong>${c.toUpperCase()}</strong></p>`).join("");
+            if (currentVisualContext.length > 0) {
+                objOut.innerHTML = currentVisualContext.map(c => `<p class="sys-msg">Tracking: <strong>${c.toUpperCase()}</strong></p>`).join("");
             } else {
                 objOut.innerHTML = `<p class="sys-msg">No targets detected.</p>`;
             }
@@ -561,7 +562,7 @@ if (SpeechRecognition) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ prompt: command })
+            body: JSON.stringify({ prompt: command, context: currentVisualContext })
         })
         .then(res => res.json())
         .then(data => {
