@@ -110,21 +110,31 @@ function initializeSystem(event) {
         camStatus.textContent = "CAM: ONLINE";
         camStatus.className = "badge active";
         
-        const constraints = { video: { facingMode: "user" } };
+        const constraints = { video: { facingMode: "user" }, audio: true };
         navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+            // Release the microphone track immediately so SpeechRecognition can use it!
+            stream.getAudioTracks().forEach(track => track.stop());
+            
             video.srcObject = stream;
             video.addEventListener("loadeddata", predictWebcam);
+            
+            // Start voice ONLY after permissions are explicitly granted!
+            isVoiceEnabled = true;
+            voiceStatus.textContent = "VOICE: LISTENING";
+            voiceStatus.className = "badge active";
+            if (recognition) {
+                try {
+                    recognition.start();
+                } catch (e) {
+                    console.error("Voice start failed:", e);
+                    addNotification("Failed to start voice: " + e.message);
+                }
+            }
+            addNotification("J.A.R.V.I.S. initialized. Say 'Hey Jarvis' to interact.");
+        }).catch(err => {
+            console.error("Permission denied:", err);
+            addNotification("Camera/Mic permissions denied. Please allow them in your browser.");
         });
-
-        isVoiceEnabled = true;
-        voiceStatus.textContent = "VOICE: LISTENING";
-        voiceStatus.className = "badge active";
-        if (recognition) {
-            try {
-                recognition.start();
-            } catch (e) {}
-        }
-        addNotification("J.A.R.V.I.S. initialized. Say 'Hey Jarvis' to interact.");
     }
 }
 
@@ -151,6 +161,8 @@ async function predictWebcam() {
             trackingStatus.textContent = "ACTIVE";
             trackingStatus.style.color = "var(--success)";
             handednessOut.textContent = results.handednesses[0][0].displayName;
+            
+            jarvisRotation += 0.04; // Update once per frame
 
             for (const landmarks of results.landmarks) {
                 drawConnectors(canvasCtx, landmarks, { color: "rgba(59, 130, 246, 0.4)", lineWidth: 2 });
@@ -240,7 +252,6 @@ function drawJarvisCircle(ctx, landmarks, handName) {
     
     const baseRadius = 90 + (handSize * 0.2);
 
-    jarvisRotation += 0.04;
     const time = Date.now();
     const pulse = Math.sin(time / 150) * 0.05 + 1.0; 
 
@@ -378,6 +389,8 @@ function playWakeChime() {
 
 let isVoiceEnabled = false;
 let recognition = null;
+let jarvisAwake = false;
+let awakeTimeout = null;
 
 // Speech Recognition (Web Speech API)
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -391,11 +404,15 @@ if (SpeechRecognition) {
     recognition.onstart = () => {
         voiceStatus.textContent = "VOICE: LISTENING";
         voiceStatus.className = "badge active";
+        addNotification("Microphone is now active and listening.");
     };
     
     recognition.onresult = (event) => {
         const last = event.results.length - 1;
         let text = event.results[last][0].transcript.trim().toLowerCase();
+        
+        console.log("Speech captured:", text);
+        addNotification("🎤 Heard: '" + text + "'");
         
         if (text) {
             const wakeWords = ["hey jarvis", "jarvis"];
@@ -411,55 +428,77 @@ if (SpeechRecognition) {
                 }
             }
             
-            if (isWakeWordDetected && command.length > 0) {
-                addVoiceMessage("You", command);
-                voiceStatus.textContent = "VOICE: PROCESSING";
-                
-                // Send to backend via REST API
-                fetch('/api/voice', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ prompt: command })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.response) {
-                        addVoiceMessage("J.A.R.V.I.S.", data.response);
-                        speakText(data.response);
-                    }
-                    if (isVoiceEnabled) {
-                        voiceStatus.textContent = "VOICE: LISTENING";
-                    }
-                })
-                .catch(err => {
-                    console.error("Voice API error:", err);
-                    addNotification("Failed to connect to voice backend.");
-                    if (isVoiceEnabled) {
-                        voiceStatus.textContent = "VOICE: LISTENING";
-                    }
-                });
-            } else if (isWakeWordDetected && command.length === 0) {
-                 playWakeChime();
+            if (isWakeWordDetected) {
+                if (command.length > 0) {
+                    jarvisAwake = false;
+                    processVoiceCommand(command);
+                } else {
+                    jarvisAwake = true;
+                    playWakeChime();
+                    clearTimeout(awakeTimeout);
+                    awakeTimeout = setTimeout(() => {
+                        jarvisAwake = false;
+                        if (isVoiceEnabled) {
+                            voiceStatus.textContent = "VOICE: LISTENING";
+                        }
+                    }, 10000); // stay awake for 10s
+                    voiceStatus.textContent = "VOICE: AWAKE";
+                }
+            } else if (jarvisAwake) {
+                jarvisAwake = false;
+                clearTimeout(awakeTimeout);
+                processVoiceCommand(text);
             }
         }
     };
     
+    function processVoiceCommand(command) {
+        addVoiceMessage("You", command);
+        voiceStatus.textContent = "VOICE: PROCESSING";
+        
+        // Send to backend via REST API
+        fetch('/api/voice', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ prompt: command })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.response) {
+                addVoiceMessage("J.A.R.V.I.S.", data.response);
+                speakText(data.response);
+            }
+            if (isVoiceEnabled) {
+                voiceStatus.textContent = "VOICE: LISTENING";
+            }
+        })
+        .catch(err => {
+            console.error("Voice API error:", err);
+            addNotification("Failed to connect to voice backend.");
+            if (isVoiceEnabled) {
+                voiceStatus.textContent = "VOICE: LISTENING";
+            }
+        });
+    }
+    
     recognition.onerror = (event) => {
         console.error("Speech recognition error", event.error);
+        addNotification("Speech Error: " + event.error);
         if (event.error === "not-allowed") {
             addNotification("Microphone access denied. Please check permissions.");
         }
     };
     
     recognition.onend = () => {
+        console.log("Speech recognition ended.");
         // Auto restart if still enabled
         if (isVoiceEnabled) {
             try {
                 recognition.start();
             } catch (e) {
-                // Ignore already started errors
+                console.error("Failed to restart recognition:", e);
             }
         } else {
             voiceStatus.textContent = "VOICE: ONLINE (PAUSED)";
