@@ -1,5 +1,5 @@
 """
-JARVIS Gesture + Voice Controller
+autobotx uchless kisosk Gesture + Voice Controller
 
 Teaching path (small, focused scripts):
 - Camera Feed: `src/camera_feed.py`
@@ -52,7 +52,7 @@ DEFAULT_PROFILE_CONFIG = {
             "display_name": "Default",
             "gesture_mode_gestures": {
                 "pinch": {"label": "PINCH/SPARKLE"},
-                "5": {"label": "JARVIS", "jarvis": True},
+                "5": {"label": "autobotx uchless kisosk", "autobotx uchless kisosk": True},
             },
             "spotify_gestures": {
                 "1": "play",
@@ -618,14 +618,14 @@ def main():
             return None
 
         label = action.get("label")
-        jarvis = bool(action.get("jarvis", False))
+        jarvis = bool(action.get("autobotx uchless kisosk", False))
 
         if not isinstance(label, str) or not label.strip():
             return None
 
         return {
             "label": label.strip(),
-            "jarvis": jarvis,
+            "autobotx uchless kisosk": jarvis,
         }
 
     def spotify_action_for_count(detected_count_value):
@@ -1350,7 +1350,7 @@ def main():
                 return "Great to hear from you. Hope your day is going smoothly."
 
             if any(phrase in lowered_text for phrase in ["who are you", "what are you", "your name", "who is this"]):
-                return "I am JARVIS, your voice assistant."
+                return "I am autobotx uchless kisosk, your voice assistant."
 
             if any(phrase in lowered_text for phrase in ["what time", "current time", "time now"]):
                 return f"Current time is {now_dt.strftime('%I:%M %p')}"
@@ -1393,7 +1393,7 @@ def main():
         now_text = datetime.now().strftime("%Y-%m-%d %H:%M")
 
         system_prompt = (
-            "You are JARVIS, warm, natural, and concise. "
+            "You are autobotx uchless kisosk, warm, natural, and concise. "
             "Reply in 1-3 short conversational lines. "
             "For chit-chat, sound friendly and human, not robotic. "
             "Use provided weather context exactly and do not invent weather values. "
@@ -1503,11 +1503,11 @@ def main():
             return
 
         if "jarvis off" in command or "deactivate jarvis" in command:
-            reply("JARVIS off")
+            reply("autobotx uchless kisosk off")
             return
 
-        if "jarvis on" in command or "activate jarvis" in command or command == "jarvis":
-            reply("JARVIS on")
+        if "jarvis on" in command or "activate jarvis" in command or command == "autobotx uchless kisosk":
+            reply("autobotx uchless kisosk on")
             return
 
         if "gesture mode" in command or "go to gesture" in command or "control mode" in command:
@@ -1935,7 +1935,7 @@ def main():
                         gesture_action = gesture_mode_action_for_detection(detected_count, False)
                         if gesture_action:
                             gesture_name = gesture_action["label"]
-                            jarvis_active = bool(gesture_action["jarvis"])
+                            jarvis_active = bool(gesture_action["autobotx uchless kisosk"])
                         else:
 
             if current_mode == "SPOTIFY" and not voice_enabled:
@@ -2344,7 +2344,7 @@ def main():
 
                 cv2.putText(
                     frame,
-                    "JARVIS",
+                    "autobotx uchless kisosk",
                     (center[0] - 34, center[1] + outer_r + 22),
                     cv2.FONT_HERSHEY_DUPLEX,
                     0.56,
@@ -2353,7 +2353,7 @@ def main():
                 )
                 cv2.putText(
                     frame,
-                    "JARVIS",
+                    "autobotx uchless kisosk",
                     (center[0] - 33, center[1] + outer_r + 21),
                     cv2.FONT_HERSHEY_DUPLEX,
                     0.56,
@@ -2414,7 +2414,7 @@ def main():
         cv2.rectangle(overlay, (0, h - 60), (w, h), (16, 20, 28), -1)
         cv2.addWeighted(overlay, 0.34, frame, 0.66, 0, frame)
 
-        cv2.putText(frame, "JARVIS CONTROL HUD", (18, 30), 1, 1.0, (240, 240, 255), 2)
+        cv2.putText(frame, "autobotx uchless kisosk CONTROL HUD", (18, 30), 1, 1.0, (240, 240, 255), 2)
         cv2.line(frame, (18, 36), (260, 36), (90, 140, 255), 2)
         cv2.putText(
             frame,
@@ -2489,7 +2489,7 @@ def main():
             cd = 3 - int(time.time() - fist_start_time)
             cv2.putText(frame, str(max(0, cd)), (w // 2 - 50, h // 2), 1, 12, (0, 0, 255), 15)
 
-        cv2.imshow("JARVIS Interface", frame)
+        cv2.imshow("autobotx uchless kisosk Interface", frame)
 
         key = cv2.waitKey(1) & 0xFF
 

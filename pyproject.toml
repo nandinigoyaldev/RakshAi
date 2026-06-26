@@ -3,13 +3,13 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "jarvis-gesture-voice"
+name = "autobotx-uchless-kisosk"
 version = "0.1.0"
 description = "Hand-gesture, voice, and Spotify controller"
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [{ name = "Your Name" }]
-keywords = ["gesture-control", "opencv", "mediapipe", "spotify", "voice-assistant", "jarvis"]
+keywords = ["gesture-control", "opencv", "mediapipe", "spotify", "voice-assistant", "autobotx uchless kisosk"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",

@@ -22,7 +22,7 @@ class VoiceCommandListener:
         sample_rate=16000,
         phrase_seconds=4.0,
         cooldown_seconds=0.25,
-        wake_word="jarvis",
+        wake_word="autobotx uchless kisosk",
         wake_window_seconds=8.0,
         callback_suppress_seconds=1.2,
         require_wake_word=False,

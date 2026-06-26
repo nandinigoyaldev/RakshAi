@@ -119,52 +119,10 @@ header {
 .video-wrapper {
     position: relative;
     width: 100%;
+    aspect-ratio: 16/9;
     background: #0f172a;
     border-radius: 8px;
     overflow: hidden;
-    display: flex;
-    flex-direction: row;
-    transition: all 0.3s ease;
-}
-
-@keyframes pulse-border {
-    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-    70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-}
-
-.video-wrapper.sentry-armed {
-    border: 3px solid #ef4444;
-    animation: pulse-border 2s infinite;
-}
-
-.feed-container {
-    position: relative;
-    flex: 1;
-    min-height: 400px;
-    border-right: 1px solid #1e293b;
-}
-
-.feed-container:last-child {
-    border-right: none;
-    display: none;
-}
-
-.video-wrapper.ascii-active .feed-container:last-child {
-    display: block;
-}
-
-.feed-label {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: rgba(0,0,0,0.7);
-    color: #fff;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    z-index: 20;
-    font-family: monospace;
 }
 
 #webcam, #output_canvas {
@@ -179,24 +137,6 @@ header {
 
 #output_canvas {
     z-index: 10;
-}
-
-#ascii-output {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 10px;
-    background: #000;
-    color: #0f0;
-    font-family: monospace;
-    font-size: 8px;
-    line-height: 8px;
-    overflow: hidden;
-    white-space: pre;
-    text-align: center;
 }
 
 .controls {

@@ -11,112 +11,12 @@ const gestureOutput = document.getElementById("gesture-output");
 const trackingStatus = document.getElementById("tracking-status");
 const handednessOut = document.getElementById("handedness-out");
 const notificationsBox = document.getElementById("notifications-box");
-const toggleAsciiButton = document.getElementById("toggleAsciiButton");
-const videoWrapper = document.getElementById("video-wrapper");
-const asciiOutput = document.getElementById("ascii-output");
-const sentryModeBtn = document.getElementById("sentryModeBtn");
-const securityPanel = document.getElementById("security-panel");
-const securityLogBox = document.getElementById("security-log-box");
 
 let handLandmarker = undefined;
-let cocoSsdModel = undefined;
 let runningMode = "VIDEO";
 let webcamRunning = false;
 let lastVideoTime = -1;
-let lastSignSentTime = 0;
-let lastCaptureTime = 0;
 let jarvisRotation = 0;
-let spotifyAccessToken = null;
-let isAsciiMode = false;
-let isJarvisActive = false;
-let isSentryArmed = false;
-let latestPredictions = [];
-let isDetectingObjects = false;
-let lastSentryAlertTime = 0;
-let previousFrameData = null;
-
-// Audio setup
-const jarvisAudio = new Audio("/audios/jarvis.wav");
-jarvisAudio.loop = true;
-jarvisAudio.volume = 0.5;
-
-function speak(text) {
-    // Check if browser supports speech synthesis
-    if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // Stop any currently speaking voice
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.pitch = 0.8; // Deeper voice
-        utterance.rate = 1.0;
-        window.speechSynthesis.speak(utterance);
-    }
-}
-
-// ASCII setup
-const asciiCanvas = document.createElement('canvas');
-const asciiCtx = asciiCanvas.getContext('2d', { willReadFrequently: true });
-const ASCII_CHARS = "@@##%%**++==--::..  ";
-const ASCII_WIDTH = 120;
-const ASCII_HEIGHT = 65;
-asciiCanvas.width = ASCII_WIDTH;
-asciiCanvas.height = ASCII_HEIGHT;
-
-// Extract access token from URL
-const urlParams = new URLSearchParams(window.location.search);
-const tokenFromUrl = urlParams.get('access_token');
-if (tokenFromUrl) {
-    spotifyAccessToken = tokenFromUrl;
-    window.history.replaceState({}, document.title, "/");
-    
-    // Update button once DOM is loaded or immediately if already loaded
-    setTimeout(() => {
-        addNotification("Spotify connected successfully!");
-        const btn = document.getElementById('spotify-login-btn');
-        if (btn) {
-            btn.textContent = "Spotify: Connected";
-            btn.classList.add("active");
-            btn.href = "#";
-        }
-    }, 500);
-}
-
-async function handleSpotifyCommand(command) {
-    if (!spotifyAccessToken) {
-        addNotification("Please connect Spotify first.");
-        return;
-    }
-    
-    let url = "";
-    let method = "POST";
-    
-    if (command === "play") {
-        url = "https://api.spotify.com/v1/me/player/play";
-        method = "PUT";
-    } else if (command === "pause") {
-        url = "https://api.spotify.com/v1/me/player/pause";
-        method = "PUT";
-    } else if (command === "next") {
-        url = "https://api.spotify.com/v1/me/player/next";
-    } else if (command === "previous") {
-        url = "https://api.spotify.com/v1/me/player/previous";
-    }
-    
-    try {
-        const res = await fetch(url, {
-            method: method,
-            headers: {
-                "Authorization": `Bearer ${spotifyAccessToken}`
-            }
-        });
-        if (!res.ok) {
-            addNotification(`Spotify Error: Open app first.`);
-        } else {
-            addNotification(`Spotify: ${command.toUpperCase()}`);
-        }
-    } catch (e) {
-        console.error(e);
-    }
-}
-
 
 // API connection check
 async function checkBackendAPI() {
@@ -161,87 +61,10 @@ async function createHandLandmarker() {
         minTrackingConfidence: 0.7
     });
     enableWebcamButton.classList.remove("disabled");
-    toggleAsciiButton.style.display = "inline-block";
     addNotification("Vision System Initialized.");
 }
 
 createHandLandmarker();
-
-// Load Object Detection Model
-if (typeof cocoSsd !== 'undefined') {
-    cocoSsd.load().then(model => {
-        cocoSsdModel = model;
-        addNotification("COCO-SSD Object Detection Model Loaded.");
-        sentryModeBtn.style.display = "inline-block";
-        objectDetectionLoop();
-    });
-}
-
-toggleAsciiButton.addEventListener("click", () => {
-    isAsciiMode = !isAsciiMode;
-    if (isAsciiMode) {
-        videoWrapper.classList.add("ascii-active");
-        toggleAsciiButton.textContent = "Disable ASCII Mode";
-    } else {
-        videoWrapper.classList.remove("ascii-active");
-        toggleAsciiButton.textContent = "Toggle ASCII Mode";
-    }
-});
-
-sentryModeBtn.addEventListener("click", () => {
-    isSentryArmed = !isSentryArmed;
-    if (isSentryArmed) {
-        sentryModeBtn.textContent = "Disarm Sentry";
-        sentryModeBtn.style.background = "#64748b";
-        videoWrapper.classList.add("sentry-armed");
-        securityPanel.style.display = "block";
-        addSecurityLog("SYSTEM ARMED. Scanning for threats...");
-        speak("Sentry mode activated.");
-    } else {
-        sentryModeBtn.textContent = "Arm Sentry";
-        sentryModeBtn.style.background = "#ef4444";
-        videoWrapper.classList.remove("sentry-armed");
-        addSecurityLog("System disarmed.");
-        speak("Sentry mode deactivated.");
-    }
-});
-
-function addSecurityLog(msg) {
-    const p = document.createElement("p");
-    p.className = "sys-msg";
-    p.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-    p.style.color = "#ef4444";
-    p.style.fontWeight = "bold";
-    securityLogBox.prepend(p);
-}
-
-async function objectDetectionLoop() {
-    if (!cocoSsdModel || !webcamRunning) {
-        requestAnimationFrame(objectDetectionLoop);
-        return;
-    }
-    if (!isDetectingObjects) {
-        isDetectingObjects = true;
-        try {
-            latestPredictions = await cocoSsdModel.detect(video);
-            
-            if (isSentryArmed) {
-                const hasPerson = latestPredictions.some(p => p.class === "person");
-                if (hasPerson && (Date.now() - lastSentryAlertTime > 8000)) {
-                    lastSentryAlertTime = Date.now();
-                    addSecurityLog("THIEF ALERT! Person detected in frame.");
-                    speak("Intruder detected. Alert logged.");
-                    videoWrapper.classList.add("flash-effect");
-                    setTimeout(() => videoWrapper.classList.remove("flash-effect"), 200);
-                }
-            }
-        } catch (e) {
-            console.error("Object detection error:", e);
-        }
-        isDetectingObjects = false;
-    }
-    requestAnimationFrame(objectDetectionLoop);
-}
 
 if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     enableWebcamButton.addEventListener("click", enableCam);
@@ -301,27 +124,15 @@ async function predictWebcam() {
             
             // Finger counting heuristics
             const primaryFingerCount = detectFingerCount(results.landmarks[0]);
-            let gestureLabel = (primaryFingerCount === 5) ? "5 Fingers (Jarvis Mode)" : "Resting";
+            let gestureLabel = (primaryFingerCount === 5) ? "5 Fingers (autobotx uchless kisosk Mode)" : "Resting";
 
-            // Draw Jarvis circle for ANY hand showing 5 fingers
-            let anyHandJarvis = false;
+            // Draw autobotx uchless kisosk circle for ANY hand showing 5 fingers
             results.landmarks.forEach((landmarks, index) => {
                 if (detectFingerCount(landmarks) === 5) {
-                    anyHandJarvis = true;
                     const handName = results.handednesses[index][0].displayName;
                     drawJarvisCircle(canvasCtx, landmarks, handName);
                 }
             });
-
-            if (anyHandJarvis && !isJarvisActive) {
-                isJarvisActive = true;
-                speak("Hello sir, I am Jarvis.");
-                jarvisAudio.play().catch(e => console.log("Audio play prevented by browser policy", e));
-            } else if (!anyHandJarvis && isJarvisActive) {
-                isJarvisActive = false;
-                jarvisAudio.pause();
-                jarvisAudio.currentTime = 0;
-            }
 
             if (gestureOutput.innerHTML !== gestureLabel) {
                 gestureOutput.innerHTML = gestureLabel;
@@ -333,38 +144,7 @@ async function predictWebcam() {
             handednessOut.textContent = "-";
             gestureOutput.innerHTML = `<span class="placeholder">Waiting for hand...</span>`;
         }
-            
-            // Draw Object Detection Bounding Boxes
-            if (latestPredictions) {
-                const scaleX = canvasElement.width / video.videoWidth;
-                const scaleY = canvasElement.height / video.videoHeight;
-                latestPredictions.forEach(prediction => {
-                    const [x, y, width, height] = prediction.bbox;
-                    const isPerson = prediction.class === "person";
-                    const color = (isSentryArmed && isPerson) ? "#ef4444" : "#00FF00";
-                    
-                    canvasCtx.strokeStyle = color;
-                    canvasCtx.lineWidth = 2;
-                    canvasCtx.strokeRect(x * scaleX, y * scaleY, width * scaleX, height * scaleY);
-                    
-                    canvasCtx.fillStyle = color;
-                    canvasCtx.save();
-                    canvasCtx.translate(x * scaleX, y * scaleY);
-                    canvasCtx.scale(-1, 1); // Un-mirror for text readability
-                    canvasCtx.font = "14px Arial";
-                    canvasCtx.fillText(
-                        `${prediction.class} (${Math.round(prediction.score * 100)}%)`,
-                        -width * scaleX, 
-                        -5
-                    );
-                    canvasCtx.restore();
-                });
-            }
         canvasCtx.restore();
-
-        if (isAsciiMode) {
-            updateAsciiFrame();
-        }
     }
 
     if (webcamRunning === true) {
@@ -398,70 +178,6 @@ function detectFingerCount(landmarks) {
     return Math.min(5, Math.max(0, count));
 }
 
-async function sendSignToAPI(sign) {
-    try {
-        const response = await fetch('/api/sign', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sign: sign })
-        });
-        const data = await response.json();
-        console.log("Telemetry:", data.message);
-    } catch (err) {
-        console.error(err);
-    }
-}
-
-async function captureAndRegisterUser() {
-    addNotification("Capturing Photo...");
-    
-    // Flash effect
-    document.body.classList.add("flash-effect");
-    setTimeout(() => document.body.classList.remove("flash-effect"), 200);
-
-    // Create temporary canvas to grab the frame
-    const tempCanvas = document.createElement("canvas");
-    tempCanvas.width = video.videoWidth;
-    tempCanvas.height = video.videoHeight;
-    tempCanvas.getContext("2d").drawImage(video, 0, 0);
-    const base64Image = tempCanvas.toDataURL("image/jpeg", 0.8);
-
-    try {
-        const response = await fetch('/api/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image_base64: base64Image })
-        });
-        const data = await response.json();
-        
-        if (data.status === "success") {
-            addNotification("Success: Profile Registered!");
-            showProfilePopup(base64Image);
-        }
-    } catch (err) {
-        addNotification("Error: Failed to register profile.");
-        console.error(err);
-    }
-}
-
-function showProfilePopup(imgSrc) {
-    const existing = document.getElementById("profile-popup");
-    if(existing) existing.remove();
-
-    const popup = document.createElement("div");
-    popup.id = "profile-popup";
-    popup.className = "profile-popup";
-    popup.innerHTML = `
-        <div class="popup-content">
-            <h3>Registration Complete</h3>
-            <img src="${imgSrc}" alt="User Profile" />
-            <p>Welcome to the Touchless Kiosk!</p>
-            <button onclick="document.getElementById('profile-popup').remove()">Close</button>
-        </div>
-    `;
-    document.body.appendChild(popup);
-}
-
 function drawConnectors(ctx, landmarks, options) {
     ctx.strokeStyle = options.color;
     ctx.lineWidth = options.lineWidth;
@@ -487,22 +203,17 @@ function drawJarvisCircle(ctx, landmarks, handName) {
     const dy = (wrist.y - middleTip.y) * canvasElement.height;
     const handSize = Math.sqrt(dx*dx + dy*dy);
     
-    // Distance based size: baseline size + slight hand scale
-    // This makes the ring look relatively massive when the hand is far (small handSize),
-    // and relatively tight when the hand is near.
     const baseRadius = 90 + (handSize * 0.2);
 
     jarvisRotation += 0.04;
     const time = Date.now();
-    const pulse = Math.sin(time / 150) * 0.05 + 1.0; // 0.95 to 1.05
+    const pulse = Math.sin(time / 150) * 0.05 + 1.0; 
 
-    // Color based on Handedness
-    // Left = Cyan (180), Right = Orange/Gold (35)
     const hue = handName === "Left" ? 180 : 35;
     
     ctx.save();
     ctx.translate(x, y);
-    ctx.scale(pulse, pulse); // Add pulsing heartbeat animation
+    ctx.scale(pulse, pulse); 
     
     // Core glow
     ctx.beginPath();
@@ -533,7 +244,7 @@ function drawJarvisCircle(ctx, landmarks, handName) {
     ctx.setLineDash([80, 30]);
     ctx.stroke();
     
-    // Draw an inscribed hexagon for more tech-feel
+    // Draw an inscribed hexagon
     ctx.beginPath();
     for (let i = 0; i <= 6; i++) {
         const angle = i * Math.PI / 3;
@@ -580,7 +291,6 @@ function drawJarvisCircle(ctx, landmarks, handName) {
         const tx = tip.x * canvasElement.width - x;
         const ty = tip.y * canvasElement.height - y;
         
-        // Add a sweeping highlight on the lines
         const lineLen = Math.sqrt(tx*tx + ty*ty);
         const sweep = (time / 10 + i * 50) % lineLen;
 
@@ -589,7 +299,6 @@ function drawJarvisCircle(ctx, landmarks, handName) {
         ctx.lineTo(tx, ty);
         ctx.stroke();
         
-        // Highlight pulse along the line
         const hx = (tx / lineLen) * sweep;
         const hy = (ty / lineLen) * sweep;
         ctx.beginPath();
@@ -597,7 +306,6 @@ function drawJarvisCircle(ctx, landmarks, handName) {
         ctx.fillStyle = "#fff";
         ctx.fill();
         
-        // Glowing node at fingertip
         ctx.beginPath();
         ctx.arc(tx, ty, 6 + Math.sin(time/100 + i)*2, 0, 2 * Math.PI);
         ctx.fillStyle = `hsla(${hue}, 100%, 60%, 0.9)`;
@@ -605,55 +313,4 @@ function drawJarvisCircle(ctx, landmarks, handName) {
     });
 
     ctx.restore();
-}
-
-function updateAsciiFrame() {
-    asciiCtx.drawImage(video, 0, 0, ASCII_WIDTH, ASCII_HEIGHT);
-    const imageData = asciiCtx.getImageData(0, 0, ASCII_WIDTH, ASCII_HEIGHT);
-    const data = imageData.data;
-    
-    // Motion Detection for Ghost Protocol
-    let diffCount = 0;
-    if (previousFrameData) {
-        for (let i = 0; i < data.length; i += 4) {
-            const diff = Math.abs(data[i] - previousFrameData[i]) + 
-                         Math.abs(data[i+1] - previousFrameData[i+1]) + 
-                         Math.abs(data[i+2] - previousFrameData[i+2]);
-            if (diff > 100) diffCount++;
-            previousFrameData[i] = data[i];
-            previousFrameData[i+1] = data[i+1];
-            previousFrameData[i+2] = data[i+2];
-        }
-    } else {
-        previousFrameData = new Uint8ClampedArray(data);
-    }
-
-    if (isSentryArmed && diffCount > 800) { // Significant motion
-        const hasPerson = latestPredictions && latestPredictions.some(p => p.class === "person");
-        if (!hasPerson && (Date.now() - lastSentryAlertTime > 8000)) {
-            lastSentryAlertTime = Date.now();
-            addSecurityLog("GHOST ALERT: Significant motion detected with zero people!");
-            speak("Unknown entity detected. Ghost protocol initiated.");
-        }
-    }
-
-    let asciiStr = "";
-    for (let y = 0; y < ASCII_HEIGHT; y++) {
-        // Iterate backwards through x to match the mirrored camera
-        for (let x = ASCII_WIDTH - 1; x >= 0; x--) {
-            const index = (y * ASCII_WIDTH + x) * 4;
-            const r = data[index];
-            const g = data[index + 1];
-            const b = data[index + 2];
-            
-            // Calculate brightness
-            const brightness = (r * 0.299 + g * 0.587 + b * 0.114);
-            const charIndex = Math.floor((brightness / 255) * (ASCII_CHARS.length - 1));
-            
-            asciiStr += ASCII_CHARS[charIndex];
-        }
-        asciiStr += "\n";
-    }
-    
-    asciiOutput.textContent = asciiStr;
 }

@@ -1,6 +1,6 @@
-## JARVIS — Hackathon Project (Gesture + Voice)
+## autobotx uchless kisosk — Hackathon Project (Gesture + Voice)
 
-Welcome! This repo is a hackathon project that implements a JARVIS-style assistant using hand gestures, voice commands, and (optionally) Spotify control. The instructions below assume you are using Linux and have a webcam and microphone available.
+Welcome! This repo is a hackathon project that implements a autobotx uchless kisosk-style assistant using hand gestures, voice commands, and (optionally) Spotify control. The instructions below assume you are using Linux and have a webcam and microphone available.
 
 If you cloned this repo from GitHub, replace the repository URL in the commands below with your repo's URL.
 
@@ -87,14 +87,14 @@ Create the Spotify app and add the redirect URI in the Spotify Developer Dashboa
 
 ### 6) What each file/folder is for
 
-- `gesture.py` — Main launcher that runs the full JARVIS app.
+- `gesture.py` — Main launcher that runs the full autobotx uchless kisosk app.
 - `src/` — Small, focused lesson scripts for teaching step-by-step.
 - `src/main.py` — Full app implementation (same as `gesture.py` behavior).
 - `spotify.py`, `voice.py` — Helpers for Spotify and voice recognition.
 - `audios/` — Sound effects used by the app.
 - `requirements.txt` — Python dependencies to install.
 
-### 7) Run the full JARVIS app
+### 7) Run the full autobotx uchless kisosk app
 
 ```bash
 # Use CAMERA_INDEX to select the webcam if you have multiple
@@ -126,7 +126,7 @@ The modules available are:
 - `1 finger` — Open browser (one-time trigger)
 - `pinch` (thumb + index) — Sparkle effect (audio/visual)
 - `2 fingers` — Screenshot (saves to `screenshots/` by default)
-- `5 fingers` — Enter JARVIS mode
+- `5 fingers` — Enter autobotx uchless kisosk mode
 
 In `SPOTIFY` mode (press `M`):
 - `1` — Play
@@ -252,11 +252,11 @@ source myenv/bin/activate
 
 ## Web Application & Sign Language (Vercel Ready)
 
-The Autobot project now includes a futuristic, JARVIS-styled web interface with built-in Sign Language Recognition!
+The Autobot project now includes a futuristic, autobotx uchless kisosk-styled web interface with built-in Sign Language Recognition!
 
 ### Features
 - **Sign Language Recognition**: Detects basic signs (A/Fist, V/2, 5/Open, 1/Point) directly in your browser.
-- **JARVIS Aesthetics**: Monospaced terminal fonts, cyan wireframes, and holographic scanlines.
+- **autobotx uchless kisosk Aesthetics**: Monospaced terminal fonts, cyan wireframes, and holographic scanlines.
 - **Vercel Deployable**: The `web_app/` folder is pre-configured to be deployed instantly on Vercel as a Serverless API + Static Frontend.
 
 ### Running Locally

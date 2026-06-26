@@ -3,17 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoBotX</title>
+    <title>autobotx uchless kisosk</title>
     <!-- Professional Modern Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/styles.css">
     
     <!-- MediaPipe dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/vision_bundle.js" crossorigin="anonymous"></script>
-    
-    <!-- TensorFlow.js and COCO-SSD for Object Detection -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
 </head>
 <body>
     <div class="app-container">
@@ -21,7 +17,7 @@
         <header class="card">
             <div class="logo">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
-                <h1>AutoBot<span class="highlight">X</span></h1>
+                <h1>autobotx <span class="highlight">uchless kisosk</span></h1>
             </div>
             <div class="status-bar">
                 <span id="api-status" class="badge">SYS: OFFLINE</span>
@@ -33,28 +29,15 @@
         <main class="dashboard">
             <!-- Camera Feed -->
             <section class="video-section card">
-                <div class="video-wrapper" id="video-wrapper">
-                    <div class="feed-container" id="feed-original">
-                        <div class="feed-label">Original</div>
-                        <video id="webcam" autoplay playsinline></video>
-                        <canvas id="output_canvas"></canvas>
-                    </div>
-                    <div class="feed-container" id="feed-clone">
-                        <div class="feed-label">Clone</div>
-                        <pre id="ascii-output"></pre>
-                    </div>
+                <div class="video-wrapper">
+                    <video id="webcam" autoplay playsinline></video>
+                    <canvas id="output_canvas"></canvas>
                 </div>
                 <div class="controls">
                     <button id="enableWebcamButton" class="btn primary">
                         Enable Camera
                     </button>
-                    <button id="toggleAsciiButton" class="btn secondary" style="margin-left: 10px; display: none;">
-                        Toggle ASCII Mode
-                    </button>
-                    <button id="sentryModeBtn" class="btn secondary" style="margin-left: 10px; display: none; background: #ef4444;">
-                        Arm Sentry
-                    </button>
-                    <p class="hint">Use gestures to interact with the system.</p>
+                    <p class="hint">Show 5 fingers to activate holographic interface.</p>
                 </div>
             </section>
 
@@ -79,13 +62,6 @@
                     <h2>Recent Events</h2>
                     <div id="notifications-box" class="notes-box">
                         <p class="sys-msg">System initialized. Awaiting commands...</p>
-                    </div>
-                </div>
-
-                <div class="security-panel card" id="security-panel" style="display: none; border-color: #ef4444;">
-                    <h2 style="color: #ef4444;">Security Log</h2>
-                    <div id="security-log-box" class="notes-box">
-                        <p class="sys-msg">Sentry disarmed.</p>
                     </div>
                 </div>
             </section>

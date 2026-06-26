@@ -1,6 +1,6 @@
-# JARVIS Hackathon Project - Gesture + Voice Recognition
+# autobotx uchless kisosk Hackathon Project - Gesture + Voice Recognition
 
-This project implements **JARVIS**, a complete hand gesture and voice recognition system. The code is structured into modules handling different features.
+This project implements **autobotx uchless kisosk**, a complete hand gesture and voice recognition system. The code is structured into modules handling different features.
 
 ## Modules
 
@@ -61,7 +61,7 @@ python src/spotify_controller.py
 
 ### Level 5: Complete System
 
-#### **Main App: Full JARVIS System**
+#### **Main App: Full autobotx uchless kisosk System**
 - **Goal**: Combine all features into one powerful application
 - **Topics**: Multi-modal input, event architecture, real-time processing
 - **Skills**: System integration, performance optimization, user experience

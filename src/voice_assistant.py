@@ -33,7 +33,7 @@ class VoiceCommandListener:
     This class runs in a background thread and continuously:
     1. Records audio from the microphone
     2. Converts speech to text using Google Speech Recognition
-    3. Detects if a wake word (like "Jarvis") is mentioned
+    3. Detects if a wake word (like "autobotx uchless kisosk") is mentioned
     4. Triggers callbacks when commands are heard
     """
     
@@ -47,7 +47,7 @@ class VoiceCommandListener:
         sample_rate=16000,
         phrase_seconds=4.0,
         cooldown_seconds=0.25,
-        wake_word="jarvis",
+        wake_word="autobotx uchless kisosk",
         wake_window_seconds=8.0,
         callback_suppress_seconds=1.2,
         require_wake_word=False,
@@ -64,7 +64,7 @@ class VoiceCommandListener:
             sample_rate: Audio sample rate (Hz) - 16000 is standard
             phrase_seconds: How long to listen for (4 seconds per phrase)
             cooldown_seconds: Wait time between recordings
-            wake_word: The word to listen for (e.g., "jarvis")
+            wake_word: The word to listen for (e.g., "autobotx uchless kisosk")
             wake_window_seconds: Time window to accept commands after wake word
             callback_suppress_seconds: Suppress callbacks to avoid rapid re-triggers
             require_wake_word: If True, only respond after hearing wake word
@@ -226,7 +226,7 @@ class VoiceCommandListener:
 
 
 def demo_voice_listener():
-    """Demo: Listen for voice commands with wake word 'jarvis'"""
+    """Demo: Listen for voice commands with wake word 'autobotx uchless kisosk'"""
     
     def on_command(cmd):
         print(f"✓ Command: {cmd}")
@@ -249,14 +249,14 @@ def demo_voice_listener():
         on_heard=on_heard,
         on_state=on_state,
         on_error=on_error,
-        wake_word="jarvis",
+        wake_word="autobotx uchless kisosk",
         require_wake_word=True
     )
     
     listener.set_enabled(True)
     listener.start()
     
-    print("🎙️ Voice listener started. Say 'Jarvis' followed by a command.")
+    print("🎙️ Voice listener started. Say 'autobotx uchless kisosk' followed by a command.")
     print("Press Ctrl+C to stop.")
     
     try:
