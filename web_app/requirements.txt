@@ -1,5 +1,0 @@
-fastapi
-uvicorn
-websockets
-google-generativeai
-python-dotenv

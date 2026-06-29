@@ -1,7 +1,0 @@
-fastapi
-uvicorn
-python-dotenv
-google-generativeai
-twilio
-python-multipart
-Pillow
