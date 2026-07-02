@@ -150,10 +150,13 @@ async def analyze(payload: AnalyzePayload):
             raise HTTPException(status_code=400, detail="Invalid base64 image")
         # Send to Gemini Vision
         try:
+            from io import BytesIO
+            from PIL import Image
+            image = Image.open(BytesIO(image_bytes))
             gemini_resp = model.generate_content(
                 [
-                    "You are KAVACH safety AI. Analyze body language for distress. Look for: hunched posture, defensive arms, backing away, fearful expression, nervous looking around, covering face. Return ONLY this JSON no markdown:\n{\n  posture_level: 0 or 1 or 2,\n  observations: [3 short strings],\n  description: one sentence\n}\n",
-                    genai.upload(image_bytes, mime_type="image/jpeg")
+                    "You are KAVACH safety AI. Analyze body language for distress. Look for: hunched posture, defensive arms, backing away, fearful expression, nervous looking around, covering face. Return ONLY this JSON no markdown:\n{\n  \"posture_level\": 0 or 1 or 2,\n  \"observations\": [3 short strings],\n  \"description\": \"one sentence\"\n}\n",
+                    image
                 ]
             )
             resp_dict = parse_gemini_response(gemini_resp.text)

@@ -2,7 +2,7 @@
 // Caches all static assets on install and serves from cache when offline.
 // API calls use a network‑first strategy, while static files use cache‑first.
 
-const CACHE_NAME = 'kavach-cache-v1';
+const CACHE_NAME = 'kavach-cache-v2';
 const OFFLINE_URL = 'offline.html'; // optional fallback page
 
 // List of core assets to cache – adjust if you add more files.
